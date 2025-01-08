@@ -1,6 +1,10 @@
 package com.example.demo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -33,6 +37,8 @@ public class CamaraService {
 
 public void cargarDatosDesdeApi() {
     try {
+    	camaraRepositorio.deleteAll();
+    
         CamaraDTO response = restTemplate.getForObject(API_URL, CamaraDTO.class);
         
         //Lo filtro para que no inserte si tiene un campo vacio
@@ -52,14 +58,15 @@ public void cargarDatosDesdeApi() {
 
 
 public void cargarDatosDesdeApiIncidencias() {
-    try {
+	
+	try {
         SSLUtils.disableSslVerification();
         LocalDate now = LocalDate.now();
         String baseUrl = "https://api.euskadi.eus/traffic/v1.0/incidences/byDate/" + now.getYear() + "/" + now.getMonthValue() + "/" + now.getDayOfMonth();
         String url = baseUrl;
 
         incidenciaRepositorio.deleteAll();
-        
+        tareaProgramada();
         IncidenciasResponse incidencesResponse = restTemplate.getForObject(url, IncidenciasResponse.class);
         int totalPages = incidencesResponse.getTotalPages();
 
@@ -96,6 +103,40 @@ public void cargarDatosDesdeApiIncidencias() {
         System.err.println("Error al cargar datos desde la API en la página: " + e.getMessage());
     }
 }
+
+
+public void tareaProgramada() {
+
+    LocalDateTime nextRunTimeNoon = LocalDateTime.now().withHour(12).withMinute(0).withSecond(0).withNano(0);
+    if (LocalDateTime.now().isAfter(nextRunTimeNoon)) {
+        
+        nextRunTimeNoon = nextRunTimeNoon.plusDays(1);
+        incidenciaRepositorio.deleteAll();
+        System.out.println("Tarea programada completada.");
+    }
+
+
+    long initialDelayNoon = ChronoUnit.MILLIS.between(LocalDateTime.now(), nextRunTimeNoon);
+
+
+    Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+
+        cargarDatosDesdeApiIncidencias();
+    }, initialDelayNoon, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS);
+
+    LocalDateTime nextRunTimeMidnight = LocalDateTime.now().withHour(0).withMinute(1).withSecond(0).withNano(0);
+    if (LocalDateTime.now().isAfter(nextRunTimeMidnight)) {
+        nextRunTimeMidnight = nextRunTimeMidnight.plusDays(1);
+    }
+
+
+    long initialDelayMidnight = ChronoUnit.MILLIS.between(LocalDateTime.now(), nextRunTimeMidnight);
+
+    Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+        cargarDatosDesdeApiIncidencias();
+    }, initialDelayMidnight, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS);
+}
+
 
 
 
