@@ -10,9 +10,17 @@ public class Usuario {
     private Long id;
     private String usuario;
     private String correo;
-    private String contrasena;
+    private String password;
 
-    // Getters and setters
+    public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	// Getters and setters
     public Long getId() {
         return id;
     }
@@ -37,11 +45,4 @@ public class Usuario {
         this.correo = correo;
     }
 
-    public String getContraseña() {
-        return contrasena;
-    }
-
-    public void setContraseña(String contraseña) {
-        this.contrasena = contraseña;
-    }
 }

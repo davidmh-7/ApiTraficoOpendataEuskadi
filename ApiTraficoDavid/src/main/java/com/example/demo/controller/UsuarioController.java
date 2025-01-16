@@ -81,8 +81,8 @@ public class UsuarioController {
                     if (usuario.getCorreo() != null) {
                         u.setCorreo(usuario.getCorreo());
                     }
-                    if (usuario.getContraseña() != null) {
-                        u.setContraseña(usuario.getContraseña());
+                    if (usuario.getPassword() != null) {
+                        u.setPassword(usuario.getPassword());
                     }
                     return usuarioRepositorio.save(u);
                 })
