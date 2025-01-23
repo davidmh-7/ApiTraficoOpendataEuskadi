@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioController {
 
     private final UsuarioRepositorio usuarioRepositorio;
-
     
     
 	@Operation(summary = "Muestra todos los usuarios", description = "Obtiene todos los usuarios registrados en el sistema", tags = {
@@ -44,7 +43,7 @@ public class UsuarioController {
 	        description = "Obtiene todos los usuarios registrados en el sistema por ID",
 	        tags = {"Gestión de Usuarios"}
 	    )
-    @GetMapping("/usuarios/{id}")
+    @PostMapping("/usuarios/{id}")
 	public Usuario obtenerUno(@PathVariable Long id) {
 		// Vamos a modificar este código
 		return usuarioRepositorio.findById(id).orElse(null); 
@@ -100,7 +99,7 @@ public class UsuarioController {
     public Usuario insertarUsuario(@RequestBody Usuario usuario) {
         return usuarioRepositorio.save(usuario);
     }
-
-   
     
+
+	
 }
