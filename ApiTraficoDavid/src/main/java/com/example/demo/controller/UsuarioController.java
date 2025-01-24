@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.modelo.AuthService;
 import com.example.demo.modelo.Usuario;
 import com.example.demo.modelo.UsuarioRepositorio;
 
@@ -27,7 +30,9 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioController {
 
     private final UsuarioRepositorio usuarioRepositorio;
-    
+    @Autowired
+    private AuthService authService;
+
     
 	@Operation(summary = "Muestra todos los usuarios", description = "Obtiene todos los usuarios registrados en el sistema", tags = {
 			"Gestión de Usuarios" })
@@ -43,7 +48,7 @@ public class UsuarioController {
 	        description = "Obtiene todos los usuarios registrados en el sistema por ID",
 	        tags = {"Gestión de Usuarios"}
 	    )
-    @PostMapping("/usuarios/{id}")
+    @GetMapping("/usuarios/{id}")
 	public Usuario obtenerUno(@PathVariable Long id) {
 		// Vamos a modificar este código
 		return usuarioRepositorio.findById(id).orElse(null); 
@@ -100,6 +105,15 @@ public class UsuarioController {
         return usuarioRepositorio.save(usuario);
     }
     
-
 	
+	
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        boolean isAuthenticated = authService.login(loginRequest.getCorreo(), loginRequest.getPassword());
+        if (isAuthenticated) {
+            return ResponseEntity.ok("Login successful");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+    }
 }
