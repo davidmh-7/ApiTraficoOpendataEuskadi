@@ -1,12 +1,16 @@
 package com.example.demo.modelo;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 
 @Entity
 public class Usuario {
-    @Id
-
+    
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String usuario;
     private String correo;
@@ -44,5 +48,9 @@ public class Usuario {
     public void setCorreo(String correo) {
         this.correo = correo;
     }
+    
+    @Version
+    private Long version;
+
 
 }

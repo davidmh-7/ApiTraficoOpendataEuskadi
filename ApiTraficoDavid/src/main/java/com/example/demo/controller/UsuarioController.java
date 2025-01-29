@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +27,6 @@ import com.example.demo.modelo.UsuarioRepositorio;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
 
 @RestController
 @RequiredArgsConstructor
@@ -97,12 +99,19 @@ public class UsuarioController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
-		boolean isAuthenticated = authService.login(loginRequest.getCorreo(), loginRequest.getPassword());
-		if (isAuthenticated) {
-			return ResponseEntity.ok("Login successful");
-		} else {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-		}
+	public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest) {
+	    boolean isAuthenticated = authService.login(loginRequest.getCorreo(), loginRequest.getPassword());
+	    
+	    Map<String, Object> response = new HashMap<>();
+	    if (isAuthenticated) {
+	        response.put("status", "success");
+	        response.put("message", "Login successful");
+	        return ResponseEntity.ok(response); 
+	    } else {
+	        response.put("status", "error");
+	        response.put("message", "Invalid credentials");
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response); 
+	    }
 	}
+
 }
